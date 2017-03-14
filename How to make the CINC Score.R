@@ -7,9 +7,9 @@
 library(foreign)
 
 
-Wars<-read.csv(file="/Users/jers0730/Graduate School Work/Data/Data for Measuring Resolve/Structural Estimation/Wars.csv")
-NMC<-read.csv(file="/Users/jers0730/Graduate School Work/Data/COW Data/Capabilities Data/NMC.csv")
-ISP<-read.csv(file="/Users/jers0730/Graduate School Work/Data/COW Data/Interstate War/InterStateWarParticipants.csv")
+Wars<-read.csv(file="Wars.csv")
+NMC<-read.csv(file="NMC.csv")
+ISP<-read.csv(file="InterStateWarParticipants.csv")
 
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
