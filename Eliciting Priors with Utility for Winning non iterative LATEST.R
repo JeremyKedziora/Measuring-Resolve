@@ -13,39 +13,31 @@ library(MCMCpack)
 library(sm)
 library(MASS)
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#This is the data that I created the second time around!!!
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#Wars<-read.csv(file="/Users/jers0730/Graduate School Work/Data/Data for Measuring Resolve/Structural Estimation/Wars1.csv")
-source(file="/Users/jers0730/Graduate School Work/Projects/Measuring Resolve/Data Stuff/Matching Variables for Utility for Winning.R")
-source(file="/Users/jers0730/Graduate School Work/Projects/Measuring Resolve/Data Stuff/How to make the CINC Score.R")
-#Wars<-read.csv(file="/Users/jers0730/Graduate School Work/Data/Data for Measuring Resolve/Structural Estimation/Wars.csv")
-Wars<-Wars.
+setwd("/Users/Jeremy_Kedziora/Documents/Graduate School Work/Projects/Measuring Resolve/Final_scripts")
+
+#@@@@@@@@@@@
+#Create Data
+#@@@@@@@@@@@
+source(file="Matching Variables for Utility for Winning.R")
+source(file="How to make the CINC Score.R")
 rm(list=c("Wars.","Ally.i","CINC","Enemy.i","ISP","NMC","NMC.i","War.","War.A","War.B","War.Num","War.i","Wars.j","a","e","i","j","match.A","match.B","n.side"))
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #First I'll create the dependent variable which is the ratio of military personnel to total population over 2:
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
 Y<-Wars$milper/(Wars$tpop/2)
-
 Data<-cbind(Wars,Revisionist,Y)
 Data<-subset(Data,Data[,ncol(Data)]<0.6)
-
-Wars<-Data[,1:74]
-Wars<-Wars[order(Wars[,5]),]
-
-Revisionist<-Data[,75:76]
-
+Wars<-Data[order(Data[,5]),]
+Revisionist<-cbind(Wars[,(ncol(Wars)-1)],Wars[,(ncol(Wars)-1)])
 y<-Wars$milper/(Wars$tpop/2)
-
 Q<-1
 
 
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#Next I need some explanatory variables: I think I'll first go with the original model that I used:
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#Create explanatory variables
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #How the ruler entered office
 Entry<-Wars$entry1
 
@@ -69,11 +61,6 @@ Autoc<-(round(XRCOMP)==1)*2+(round(XRCOMP)==1)*((round(XROPEN)==2)*1+(round(XROP
 Democ<-(round(XRCOMP)==2)*1+(round(XRCOMP)==3)*2+(round(XRCOMP)==3)*((round(XROPEN)==3)*1+(round(XROPEN)==4)*1)+(round(XRCOMP)==2)*((round(XROPEN)==3)*1+(round(XROPEN)==4)*1)+(round(XCONST)==7)*4+(round(XCONST)==6)*3+(round(XCONST)==5)*2+(round(XCONST)==4)*1+(round(PARCOMP)==5)*3+(round(PARCOMP)==4)*2+(round(PARCOMP)==3)*1
 
 Polity<-Democ-Autoc
-
-#These are the three "concept variables" that Jackman and Trier use instead of the others...
-#Wars$EXREC
-#Wars$EXCONST
-#Wars$POLCOMP
 
 
 
@@ -110,6 +97,10 @@ V.fixed<-V
 rm(V)
 
 
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#create data to construct the initial inferences
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 N<-17
 Wars.N<-Wars[1:N,]
 x.N<-cbind(Entry[1:N],PredFate[1:N],Autoc[1:N])
@@ -136,6 +127,7 @@ Data.maker.current<-function(Year){
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #Note that above is the only part of the code that you will need to change if you want to run this with different covariates!
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 
 W<-cbind(Wars$irst,Wars$milex,Wars$milper,Wars$energy,Wars$tpop,Wars$upop,Wars$IRSTdivisor,Wars$MILEXdivisor,Wars$MILPERdivisor,Wars$ENERGYdivisor,Wars$TPOPdivisor,Wars$UPOPdivisor,Wars$AllyCINC,Wars$EnemyCINC,Wars$Year)
@@ -177,7 +169,6 @@ omega.pp<-function(y,b,W){
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #We can also set Q=0 and estimate the constant - it doesn't seem to converge, but it's effectively zero no matter what
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-#THIS WORKS REALLY WELL SO LONG AS WE ARE NOT TRYING TO ESTIMATE SIGMAs
 #If we also include durability in with the rulers utility, it works even better
 Q<-0
 llik.u<-function(b,x,z,y,W){
@@ -273,9 +264,9 @@ starting.values2<-function(B){
 
 
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#THIS IS THE FIRST ITERATION: HERE WE TRAIN THE DATA ON THE FIRST SEVERAL OBSERVATIONS!!!
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#THIS IS THE FIRST ITERATION: HERE WE COMPUTE THE INITIAL POSTERIOR ON THE FIRST SEVERAL OBSERVATIONS!!!
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #A burnin of the first 40000 or so seems appropriate...
 
 #if you aren't using fixed effects for war values:
